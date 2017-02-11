@@ -5,20 +5,22 @@ class Server
 
   # attr's not working as I would expect... why?
 
-  attr_accessor :server, :socket, :counter, :output, :headers
+  attr_accessor :server, :socket, :requests_counter, :hello_counter, :output, :headers, :keep_listening
 
   def initialize port
     @server = TCPServer.new port
     @headers = ["headers"]
     @output = "output"
-    @counter = 0
+    @requests_counter = 0
+    @hello_counter = 0
+    @keep_listening = true
   end
 
   def listen
-    loop do
+    while keep_listening do
       puts "Listening for request..."
       @socket = server.accept
-      @counter += 1 # <------- I can't access counter as an attr_accessor
+      @requests_counter += 1 # <------- I can't access requests_counter as an attr_accessor
       request = receive_request
       puts "Got this request:\n#{request.join("\n")}"
       request = build_request_hash request
@@ -39,12 +41,13 @@ class Server
     when "/"
       write_request_info request
     when "/hello"
-      "Hello"
+      "Hello, World! #{@hello_counter += 1}"
     when "/datetime"
-      "Date"
+      "#{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}"
     when "/shutdown"
-      "Shutdown"
-    end
+      @keep_listening = false
+      "Total Requests: #{requests_counter}" 
+    end 
   end
 
   def receive_request
@@ -70,7 +73,7 @@ class Server
       </pre>
     }
   end
-  
+
   def build_request_hash request_ary
     request_hash = {}
     request_ary.each do |line|
@@ -91,21 +94,7 @@ class Server
     request_hash
   end
 
-  def write_response data
-    # puts "======DATA======\n#{data}\n=============="
-
-    response = data
-    # %{
-    #   <pre>
-    #   Verb: #{data[:verb]}
-    #   Path: #{data[:path]}
-    #   Protocol: #{data[:protocol]}
-    #   Host: #{data[:host]}
-    #   Port: #{data[:port]}
-    #   Origin: #{data[:origin]}
-    #   Accept: #{data[:accept]}
-    #   </pre>
-    # }
+  def write_response response
     @output = "<html><head></head><body>#{response}</body></html>"
     @headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
