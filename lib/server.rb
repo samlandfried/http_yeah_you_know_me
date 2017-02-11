@@ -22,13 +22,28 @@ class Server
       request = receive_request
       puts "Got this request:\n#{request.join("\n")}"
       request = build_request_hash request
+
+      response = serve_path request
       puts "Writing response..."
-      write_response request
+      write_response response
       socket.puts headers # <-- But I can access headers and output here via attr_accessor, but not in .write_response
       socket.puts output
       puts "Wrote this response:\n#{output}"
       puts "With these headers:\n#{headers}"
       socket.close
+    end
+  end
+
+  def serve_path request
+    case request[:path]
+    when "/"
+      "Root"
+    when "/hello"
+      "Hello"
+    when "/datetime"
+      "Date"
+    when "/shutdown"
+      "Shutdown"
     end
   end
 
@@ -39,6 +54,7 @@ class Server
       request_lines << line.chomp.split(":")
     end
     request_lines
+    # binding.pry
   end
 
   def build_request_hash request_ary
@@ -51,11 +67,11 @@ class Server
         request_hash[:path] = line[1]
         request_hash[:protocol] = line[2]
       elsif line[0] == "Host"
-        request_hash[:host] = line[1] 
-        request_hash[:port] = line[2] 
+        request_hash[:host] = line[1]
+        request_hash[:port] = line[2]
       end
       request_hash[:accept] = line[1] if line[0] == "Accept"
-      request_hash[:origin] = request_hash[:host] # will this ever be diff from host?
+      request_hash[:origin] = request_hash[:host] # where does origin come from? Nested in the request?
     end
     # binding.pry
     request_hash
@@ -63,18 +79,19 @@ class Server
 
   def write_response data
     # puts "======DATA======\n#{data}\n=============="
-    
-    response = %{
-      <pre>
-      Verb: #{data[:verb]}
-      Path: #{data[:path]}
-      Protocol: #{data[:protocol]} 
-      Host: #{data[:host]}
-      Port: #{data[:port]}
-      Origin: #{data[:origin]}
-      Accept: #{data[:accept]}
-      </pre>
-    }
+
+    response = data
+    # %{
+    #   <pre>
+    #   Verb: #{data[:verb]}
+    #   Path: #{data[:path]}
+    #   Protocol: #{data[:protocol]}
+    #   Host: #{data[:host]}
+    #   Port: #{data[:port]}
+    #   Origin: #{data[:origin]}
+    #   Accept: #{data[:accept]}
+    #   </pre>
+    # }
     @output = "<html><head></head><body>#{response}</body></html>"
     @headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
