@@ -37,7 +37,7 @@ class Server
   def serve_path request
     case request[:path]
     when "/"
-      "Root"
+      write_request_info request
     when "/hello"
       "Hello"
     when "/datetime"
@@ -57,6 +57,20 @@ class Server
     # binding.pry
   end
 
+  def write_request_info request
+    %{
+      <pre>
+      Verb: #{request[:verb]}
+      Path: #{request[:path]}
+      Protocol: #{request[:protocol]}
+      Host: #{request[:host]}
+      Port: #{request[:port]}
+      Origin: #{request[:origin]}
+      Accept: #{request[:accept]}
+      </pre>
+    }
+  end
+  
   def build_request_hash request_ary
     request_hash = {}
     request_ary.each do |line|
