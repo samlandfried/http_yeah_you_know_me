@@ -1,0 +1,22 @@
+{
+	"variables": [],
+	"info": {
+		"name": "HTTP",
+		"_postman_id": "0a211fb4-a43f-bf7c-fc06-d488212959d5",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:9292",
+			"request": {
+				"url": "http://127.0.0.1:9292",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

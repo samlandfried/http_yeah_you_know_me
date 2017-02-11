@@ -20,9 +20,10 @@ class Server
       @socket = server.accept
       @counter += 1 # <------- I can't access counter as an attr_accessor
       request = receive_request
-      puts "Got this request:\n#{request}"
+      puts "Got this request:\n#{request.join("\n")}"
+      request = build_request_hash request
       puts "Writing response..."
-      write_response
+      write_response request
       socket.puts headers # <-- But I can access headers and output here via attr_accessor, but not in .write_response
       socket.puts output
       puts "Wrote this response:\n#{output}"
@@ -35,14 +36,46 @@ class Server
     request_lines = []
     while line = socket.gets and !line.chomp.empty?
       puts "Reading request..."
-      request_lines << line.chomp
+      request_lines << line.chomp.split(":")
     end
-    request_lines.join("\n")
+    request_lines
   end
 
-  def write_response # attr_accessor
-    response = "<pre>Hello, World! (#{counter})</pre>" # <---------- I can access counter via attr_accessor
-    @output = "<html><head></head><body>#{response}</body></html>" # But not headers and output
+  def build_request_hash request_ary
+    request_hash = {}
+    request_ary.each do |line|
+      # binding.pry
+      if line.length == 1
+        line = line[0].split(" ")
+        request_hash[:verb] = line[0]
+        request_hash[:path] = line[1]
+        request_hash[:protocol] = line[2]
+      elsif line[0] == "Host"
+        request_hash[:host] = line[1] 
+        request_hash[:port] = line[2] 
+      end
+      request_hash[:accept] = line[1] if line[0] == "Accept"
+      request_hash[:origin] = request_hash[:host] # will this ever be diff from host?
+    end
+    # binding.pry
+    request_hash
+  end
+
+  def write_response data
+    # puts "======DATA======\n#{data}\n=============="
+    
+    response = %{
+      <pre>
+      Verb: #{data[:verb]}
+      Path: #{data[:path]}
+      Protocol: #{data[:protocol]} 
+      Host: #{data[:host]}
+      Port: #{data[:port]}
+      Origin: #{data[:origin]}
+      Accept: #{data[:accept]}
+      </pre>
+    }
+    @output = "<html><head></head><body>#{response}</body></html>"
     @headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
                 "server: ruby",
