@@ -1,23 +1,24 @@
 class RequestHandler
 
-  def self.receive_request socket
-    request_lines = []
-    while line = socket.gets and !line.chomp.empty?
-      puts "Reading request..."
-      request_lines << line.chomp.split(":")
-    end
-    request_lines
+  attr_reader :original_request, :request_hash
+
+  def initialize
+    @original_request = []
+    @request_hash = {}
   end
 
-  def self.build_request_hash request
-    request_hash = {}
-    request.each do |line|
+  def receive_request socket
+    while line = socket.gets and !line.chomp.empty?
+      puts "Reading request..."
+      original_request << line.chomp.split(":")
+    end
+    original_request
+  end
+
+  def build_request_hash
+    original_request.each do |line|
       if line.length == 1
-        # line = line[0].split(" ")
-        # request_hash[:verb] = line[0]
-        # request_hash[:path] = line[1]
-        # request_hash[:protocol] = line[2]
-        parse_first_line # TODO
+        request_hash.merge!(first_line_hash(line))
       elsif line[0] == "Host"
         request_hash[:host] = line[1]
         request_hash[:port] = line[2]
@@ -28,4 +29,24 @@ class RequestHandler
     request_hash
   end
 
+  def first_line_hash line
+    first_line_hash = {}
+    line = line[0].split(" ")
+    request_hash[:verb] = line[0]
+    first_line_hash.merge!(path_hash(line[1]))
+    request_hash[:protocol] = line[2]
+    first_line_hash
+  end
+
+  def path_hash path
+    path_hash = {}
+    path = path.split("?")
+    path_hash[:path] = path.shift
+    path_hash[:params] = {}
+    path.length.times do |i|
+      key_val_tuple = path[i].split("=")
+      path_hash[:params][key_val_tuple[0].to_sym] = key_val_tuple[1]
+    end
+    path_hash
+  end 
 end

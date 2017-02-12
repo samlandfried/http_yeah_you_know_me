@@ -24,7 +24,7 @@ class ResponseHandler
   def write_request_info
     to_print = "<pre>\n"
     request.each do |key, value|
-      to_print += key.to_s.capitalize + ": " + value + "\n"
+      to_print += key.to_s.capitalize + ": " + value.to_s + "\n"
     end
     to_print + "</pre>"
   end
