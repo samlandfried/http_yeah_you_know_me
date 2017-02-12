@@ -28,7 +28,6 @@ class CompleteMe
       @count += 1
       node.word = true
     end
-
   end
 
   def find_matching_child_node target, node
