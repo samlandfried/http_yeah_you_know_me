@@ -1,3 +1,5 @@
+require './lib/game'
+
 class ResponseHandler
 
   attr_reader :request, :output, :headers
@@ -6,10 +8,15 @@ class ResponseHandler
     @request = request
   end
 
-  def serve_path counts
+  def serve_path server
     case request[:path]
     when "/"
       write_request_info
+    when "/game" 
+      handle_game(server.game)
+    when "/start_game"
+      server.game = Game.new
+      binding.pry
     when "/hello"
       "Hello, World! (#{counts[:hello]})"
     when "/datetime"
@@ -44,5 +51,9 @@ class ResponseHandler
     response = word + " is a word!"
     response.insert(word.length + 3, " NOT") unless dic.include?(word)
     response
+  end
+
+  def handle_game(server)
+    # if request[:verb] == POST
   end
 end
