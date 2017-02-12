@@ -15,8 +15,9 @@ class ResponseHandler
     when "/game" 
       handle_game(server.game)
     when "/start_game"
-      server.game = Game.new
-      binding.pry
+      request[:verb] == "POST" ? 
+        server.game = Game.new : 
+        "I only take POST requests"
     when "/hello"
       "Hello, World! (#{counts[:hello]})"
     when "/datetime"
