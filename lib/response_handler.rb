@@ -1,17 +1,15 @@
 class ResponseHandler
 
-  attr_reader :request, :requests_counter, :output, :headers
+  attr_reader :request, :output, :headers
 
   def initialize request
     @request = request
-    @hello_counter = 0
-    @requests_counter = 0
   end
 
   def serve_path counts
     case request[:path]
     when "/"
-      write_request_info(request)
+      write_request_info
     when "/hello"
       "Hello, World! (#{counts[:hello]})"
     when "/datetime"
@@ -21,18 +19,13 @@ class ResponseHandler
     end
   end
 
-  def write_request_info request
-    %{
-      <pre>
-      Verb: #{request[:verb]}
-      Path: #{request[:path]}
-      Protocol: #{request[:protocol]}
-      Host: #{request[:host]}
-      Port: #{request[:port]}
-      Origin: #{request[:origin]}
-      Accept: #{request[:accept]}
-      </pre>
-    }
+  def write_request_info
+    to_print = "<pre>\n"
+    request.each do |key, value|
+      to_print += key.to_s.capitalize + ": " + value + "\n"
+    end
+    puts to_print
+    to_print + "</pre>"
   end
 
   def write_response response

@@ -6,10 +6,7 @@ require './lib/response_handler'
 
 class Server
 
-  # attr's not working as I would expect... why?
-
-  attr_accessor :counts, :server, :socket 
-  attr_reader :server, :socket
+  attr_reader :server, :socket, :counts
 
   def initialize port
     @server = TCPServer.new port
@@ -32,7 +29,7 @@ class Server
       response = response_handler.serve_path counts
 
       puts "Writing response..."
-      response_handler.write_response response
+      response_handler.write_response(response)
 
       socket.puts response_handler.headers
       socket.puts response_handler.output
