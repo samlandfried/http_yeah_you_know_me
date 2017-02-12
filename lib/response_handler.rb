@@ -15,7 +15,8 @@ class ResponseHandler
     when "/datetime"
       "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     when "/word_search"
-
+      word = request[:params][:word]
+      is_it_in_dictionary?(word)
     when "/shutdown"
       "Total Requests: #{counts[:total]}"
     end
@@ -38,4 +39,10 @@ class ResponseHandler
                 "content-length: #{output.length}\r\n\r\n"].join("\r\n")
   end
 
+  def is_it_in_dictionary? word
+    dic = File.open("/usr/share/dict/words", "r").read
+    response = word + " is a word!"
+    response.insert(word.length + 3, " NOT") unless dic.include?(word)
+    response
+  end
 end
