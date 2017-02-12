@@ -1,3 +1,5 @@
+require './lib/complete_me'
+
 class ResponseHandler
 
   attr_reader :request, :output, :headers
@@ -40,9 +42,22 @@ class ResponseHandler
   end
 
   def is_it_in_dictionary? word
-    dic = File.open("/usr/share/dict/words", "r").read
-    response = word + " is a word!"
-    response.insert(word.length + 3, " NOT") unless dic.include?(word)
+    dic = CompleteMe.new
+    dic.populate(dic.large_word_list)
+    node = dic.find_node(word)
+
+    # if node is a word
+    if node.word
+      response = "#{word} is a known word." 
+    elsif !node.word && !node.children.empty?
+      suggestions = dic.suggest(word)
+      response = %{
+        #{word} isn't a word, but perhaps you meant one of these:
+        #{suggestions.join("   \n")}
+      }
+    else
+      response = "#{word} is not a known word."
+    end 
     response
   end
 end
