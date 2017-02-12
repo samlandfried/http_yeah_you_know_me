@@ -14,6 +14,8 @@ class ResponseHandler
       "Hello, World! (#{counts[:hello]})"
     when "/datetime"
       "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
+    when "/word_search"
+
     when "/shutdown"
       "Total Requests: #{counts[:total]}"
     end
@@ -24,7 +26,6 @@ class ResponseHandler
     request.each do |key, value|
       to_print += key.to_s.capitalize + ": " + value + "\n"
     end
-    puts to_print
     to_print + "</pre>"
   end
 

@@ -35,6 +35,8 @@ class Server
       socket.puts response_handler.output
       puts "Wrote this response:\n#{response_handler.output}"
       puts "With these headers:\n#{response_handler.headers}"
+
+      puts "\nAnd for debugging purposes...\n#{response_handler.write_request_info}"
       
       socket.close
       break if request[:path] == "/shutdown"

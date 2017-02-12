@@ -13,10 +13,11 @@ class RequestHandler
     request_hash = {}
     request.each do |line|
       if line.length == 1
-        line = line[0].split(" ")
-        request_hash[:verb] = line[0]
-        request_hash[:path] = line[1]
-        request_hash[:protocol] = line[2]
+        # line = line[0].split(" ")
+        # request_hash[:verb] = line[0]
+        # request_hash[:path] = line[1]
+        # request_hash[:protocol] = line[2]
+        parse_first_line # TODO
       elsif line[0] == "Host"
         request_hash[:host] = line[1]
         request_hash[:port] = line[2]
