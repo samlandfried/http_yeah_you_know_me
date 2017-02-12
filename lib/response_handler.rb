@@ -1,6 +1,6 @@
 class ResponseHandler
 
-  attr_reader :request, :requests_counter
+  attr_reader :request, :requests_counter, :output, :headers
 
   def initialize request
     @request = request
@@ -8,16 +8,16 @@ class ResponseHandler
     @requests_counter = 0
   end
 
-  def serve_path
+  def serve_path counts
     case request[:path]
     when "/"
-      write_request_info request
+      write_request_info(request)
     when "/hello"
-      "Hello, World! #{@hello_counter += 1}"
+      "Hello, World! (#{counts[:hello]})"
     when "/datetime"
       "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     when "/shutdown"
-      "Total Requests: #{requests_counter}"
+      "Total Requests: #{counts[:total]}"
     end
   end
 

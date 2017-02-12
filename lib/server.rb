@@ -8,32 +8,37 @@ class Server
 
   # attr's not working as I would expect... why?
 
-  attr_accessor :server, :socket, :requests_counter, :hello_counter, :output, :headers, :keep_listening
-  attr_reader :response_hander, :request_handler
+  attr_accessor :counts, :server, :socket 
+  attr_reader :server, :socket
 
   def initialize port
     @server = TCPServer.new port
-    @requests_counter = 0
+    @counts = {:hello => 0, :total => 0}
   end
 
   def listen
     loop do
       puts "Listening for request..."
       @socket = server.accept
-      @requests_counter += 1 # <------- I can't access requests_counter as an attr_accessor
 
       request = RequestHandler.receive_request socket
       puts "Got this request:\n#{request.join("\n")}"
       request = RequestHandler.build_request_hash(request) 
 
+      counts[:total] += 1
+      counts[:hello] += 1 if request[:path] == "/hello"
+
       response_handler = ResponseHandler.new(request)
-      response = response_handler.serve_path
+      response = response_handler.serve_path counts
+
       puts "Writing response..."
-      write_response response
-      socket.puts response_handler.headers # <-- But I can access headers and output here via attr_accessor, but not in .write_response
+      response_handler.write_response response
+
+      socket.puts response_handler.headers
       socket.puts response_handler.output
       puts "Wrote this response:\n#{response_handler.output}"
       puts "With these headers:\n#{response_handler.headers}"
+      
       socket.close
       break if request[:path] == "/shutdown"
     end
