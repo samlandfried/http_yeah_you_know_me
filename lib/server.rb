@@ -3,14 +3,17 @@ require 'pry'
 
 require './lib/request_handler'
 require './lib/response_handler'
+require './lib/complete_me'
 
 class Server
 
-  attr_reader :server, :socket, :counts
+  attr_reader :server, :socket, :counts, :dictionary
 
   def initialize port
     @server = TCPServer.new port
     @counts = {:hello => 0, :total => 0}
+    @dictionary = CompleteMe.new
+    dictionary.populate(File.open("/usr/share/dict/words", "r").read)
   end
 
   def listen
@@ -25,7 +28,7 @@ class Server
       counts[:total] += 1
       counts[:hello] += 1 if request[:path] == "/hello"
 
-      response_handler = ResponseHandler.new(request)
+      response_handler = ResponseHandler.new(request, dictionary)
       response = response_handler.serve_path(counts)
 
       puts "Writing response..."
