@@ -4,7 +4,6 @@ class RequestHandler
 
   def initialize
     @original_request = []
-    @request_hash = {}
   end
 
   def receive_request socket
@@ -16,6 +15,7 @@ class RequestHandler
   end
 
   def build_request_hash
+    request_hash = {}
     original_request.each do |line|
       if line.length == 1
         request_hash.merge!(first_line_hash(line))
@@ -32,9 +32,9 @@ class RequestHandler
   def first_line_hash line
     first_line_hash = {}
     line = line[0].split(" ")
-    request_hash[:verb] = line[0]
+    first_line_hash[:verb] = line[0]
     first_line_hash.merge!(path_hash(line[1]))
-    request_hash[:protocol] = line[2]
+    first_line_hash[:protocol] = line[2]
     first_line_hash
   end
 

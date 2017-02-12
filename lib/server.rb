@@ -26,7 +26,7 @@ class Server
       counts[:hello] += 1 if request[:path] == "/hello"
 
       response_handler = ResponseHandler.new(request)
-      response = response_handler.serve_path counts
+      response = response_handler.serve_path(counts)
 
       puts "Writing response..."
       response_handler.write_response(response)
