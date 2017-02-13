@@ -16,8 +16,7 @@ class ResponseHandler
       handle_game(server.game)
     when "/start_game"
       request[:verb] == "POST" ? 
-        server.game = Game.new : 
-        "I only take POST requests"
+        server.game = Game.new : "I only take POST requests"
     when "/hello"
       "Hello, World! (#{counts[:hello]})"
     when "/datetime"
@@ -54,7 +53,14 @@ class ResponseHandler
     response
   end
 
-  def handle_game(server)
-    # if request[:verb] == POST
+  def handle_game(game)
+    if request[:verb] == "POST"
+      game.guess(request[:params][:guess])
+      # Redirect
+    elsif request[:verb] == "GET"
+      game.get_info
+    else
+      "I only take POST and GET"
+    end
   end
 end

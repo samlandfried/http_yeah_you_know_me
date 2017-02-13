@@ -3,16 +3,32 @@ class Game
   attr_reader :answer, :guesses
 
   def initialize
-    @answer = Random.new.rand(10) + 1
+    @answer = Random.new.rand(101)
     @guesses = []
   end
 
-  def display_game_info
+  def get_info
+    unless guess.empty?
+      num_of_guesses = guesses.size
+      last_guess = guesses.last
+      response =%{
+          So far #{num_of_guesses == 1 ? 
+            "1 guess has" :  
+            "#{num_of_guesses} guesses have"} been made.
+          The last guess was #{last_guess} and it was 
+        }
+      return response + "too high." if last_guess > answer
+      return response + "too low." if last_guess < answer
+      return response + "correct." if last_guess == answer
+    else
+      "No guesses have been made."
+    end
   end
 
-  def check guess
+  def guess num
+    guesses << num
   end
-  
+
 end
 
 
