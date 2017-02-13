@@ -46,12 +46,14 @@ class RequestHandler
     path_hash = {}
     path = path.split("?")
     path_hash[:path] = path.shift
-    path_hash.merge!(format_params(path))
+    path_hash.merge!(params_hash(path))
   end
 
-  def format_params params
+  def params_hash params
     key_vals = {}
 
+    binding.pry
+    params = params.split("&") if params.kind_of?(String)
     params.length.times do |i|
       key_val_tuple = params[i].split("=")
       key_vals[key_val_tuple[0].to_sym] = key_val_tuple[1]

@@ -23,7 +23,11 @@ class Server
       request_handler.receive_request(socket)
       puts "Got this request:\n#{request_handler.original_request.join("\n")}"
       request = request_handler.build_request_hash
-      request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i)) if request[:verb] == "POST"
+
+      if request[:verb] == "POST"
+        request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i))
+        request.merge!(request_handler.params_hash(request_handler.request_hash[:body]))
+      end
 
       counts[:total] += 1
       counts[:hello] += 1 if request[:path] == "/hello"
@@ -40,7 +44,7 @@ class Server
       puts "With these headers:\n#{response_handler.headers}"
 
       puts "\nAnd for debugging purposes...\n#{response_handler.write_request_info}"
-      
+
       socket.close
       break if request[:path] == "/shutdown"
     end
