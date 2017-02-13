@@ -12,6 +12,7 @@ class Server
   def initialize port
     @server = TCPServer.new port
     @counts = {:hello => 0, :total => 0}
+    @game = "Fidgey widgets"
   end
 
   def listen

@@ -49,10 +49,9 @@ class RequestHandler
     path_hash.merge!(params_hash(path))
   end
 
+  # Only parses params from x-www-form-urlencoded POSTs
   def params_hash params
     key_vals = {}
-
-    binding.pry
     params = params.split("&") if params.kind_of?(String)
     params.length.times do |i|
       key_val_tuple = params[i].split("=")
