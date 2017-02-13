@@ -18,7 +18,7 @@ class ResponseHandler
       request[:verb] == "POST" ? 
         server.game = Game.new : "I only take POST requests"
     when "/hello"
-      "Hello, World! (#{counts[:hello]})"
+      "Hello, World! (#{server.counts[:hello]})"
     when "/datetime"
       "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     when "/word_search"

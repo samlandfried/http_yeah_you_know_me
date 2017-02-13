@@ -14,19 +14,23 @@ class RequestHandler
     original_request
   end
 
+  def read_body socket, length
+    {:body => socket.read(length)}
+  end
+
   def build_request_hash
-    request_hash = {}
+    @request_hash = {}
     original_request.each do |line|
       if line.length == 1
         request_hash.merge!(first_line_hash(line))
       elsif line[0] == "Host"
-        request_hash[:host] = line[1]
+        request_hash[:host] = line[1].strip
         request_hash[:port] = line[2]
+      else
+        request_hash[line[0].strip.to_sym] = line[1].strip # Note that some terms that include - don't convert to symbols nicely
       end
-      request_hash[:accept] = line[1] if line[0] == "Accept"
-      request_hash[:origin] = request_hash[:host] # where does origin come from? Nested in the request?
     end
-    request_hash
+    request_hash 
   end
 
   def first_line_hash line

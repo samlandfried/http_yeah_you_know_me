@@ -19,10 +19,12 @@ class Server
       puts "Listening for request..."
       @socket = server.accept
 
-      request = RequestHandler.new
-      request.receive_request(socket)
-      puts "Got this request:\n#{request.original_request.join("\n")}"
-      request = request.build_request_hash
+      request_handler = RequestHandler.new
+      request_handler.receive_request(socket)
+      puts "Got this request:\n#{request_handler.original_request.join("\n")}"
+      request = request_handler.build_request_hash
+      request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i)) if request[:verb] == "POST"
+
       counts[:total] += 1
       counts[:hello] += 1 if request[:path] == "/hello"
 
