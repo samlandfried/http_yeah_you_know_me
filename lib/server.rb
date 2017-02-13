@@ -37,7 +37,7 @@ class Server
       response = response_handler.serve_path(self)
 
       puts "Writing response..."
-      response_handler.write_response(response)
+      response_handler.write_response(response) unless response == "redirect"
 
       socket.puts response_handler.headers
       socket.puts response_handler.output

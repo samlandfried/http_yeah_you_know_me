@@ -11,15 +11,14 @@ class Game
     unless guesses.empty?
       num_of_guesses = guesses.size
       last_guess = guesses.last.to_i
-      response =%{
-          So far #{num_of_guesses == 1 ? 
+      response = %{
+            So far #{num_of_guesses == 1 ? 
             "1 guess has" :  
             "#{num_of_guesses} guesses have"} been made.
-          The last guess was #{last_guess} and it was
-        }
-      return response + "too high." if last_guess > answer
-      return response + "too low." if last_guess < answer
-      return response + "correct." if last_guess == answer
+          The last guess was #{last_guess} and it was }
+      return response + "too high.\n" if last_guess > answer
+      return response + "too low.\n" if last_guess < answer
+      return response + "correct.\n" if last_guess == answer
     else
       return "No guesses have been made."
     end
