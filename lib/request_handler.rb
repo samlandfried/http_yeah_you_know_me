@@ -30,7 +30,7 @@ class RequestHandler
         request_hash[line[0].strip.to_sym] = line[1].strip # Note that some terms that include - don't convert to symbols nicely
       end
     end
-    request_hash 
+    request_hash
   end
 
   def first_line_hash line
@@ -46,11 +46,16 @@ class RequestHandler
     path_hash = {}
     path = path.split("?")
     path_hash[:path] = path.shift
-    path_hash[:params] = {}
-    path.length.times do |i|
-      key_val_tuple = path[i].split("=")
-      path_hash[:params][key_val_tuple[0].to_sym] = key_val_tuple[1]
+    path_hash.merge!(format_params(path))
+  end
+
+  def format_params params
+    key_vals = {}
+
+    params.length.times do |i|
+      key_val_tuple = params[i].split("=")
+      key_vals[key_val_tuple[0].to_sym] = key_val_tuple[1]
     end
-    path_hash
-  end 
+    {:params => key_vals}
+  end
 end
