@@ -34,6 +34,10 @@ class ResponseHandler
       write_response(is_it_in_dictionary?(word))
     when "/shutdown"
       write_response("Total Requests: #{server.counts[:total]}")
+    when "/force_error"
+      raise(StandardError, "Nice one!", caller)
+    else
+      write_response("Nope.", 404)
     end
   end
 
