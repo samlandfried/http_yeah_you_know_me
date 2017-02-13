@@ -7,8 +7,6 @@ require './lib/server'
 
 class ServerTest < Minitest::Spec
 
-
-
   describe 'When it starts' do
 
     attr_reader :response, :server
@@ -63,16 +61,16 @@ class ServerTest < Minitest::Spec
   end
 
   describe "When a request is made to /datetime" do
-    
+
     attr_reader :response, :time, :day, :date, :year
 
-  # "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
+    # "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     before do
       @response = Faraday.get("http://127.0.0.1:9292/datetime")
-      @time = Time.now.strftime('%I:%M%p') 
-      @day = Time.now.strftime('%A') 
-      @date = Time.now.strftime('%B %d') 
-      @year = Time.now.strftime('%Y') 
+      @time = Time.now.strftime('%I:%M%p')
+      @day = Time.now.strftime('%A')
+      @date = Time.now.strftime('%B %d')
+      @year = Time.now.strftime('%Y')
     end
 
     it "should include time" do
@@ -93,12 +91,25 @@ class ServerTest < Minitest::Spec
 
   end
 
-  describe "When a request is made to /start_game" do
-    attr_reader :response
+  describe "When a request is made to /start_game" do # How do I get these to pass when the order of them is important? I need to kill and restart server. Might need to use Threads
 
-    before do
-      @response = Faraday.get("http://127.0.0.1:9292")
+    it "should not allow GETs" do
+      response = Faraday.get("http://127.0.0.1:9292/start_game")
+      response.body.must_include("Try with a POST, please.")
     end
+
+    it "should start a new game and redirect" do
+      response = Faraday.post("http://127.0.0.1:9292/start_game")
+      response.body.must_include("Game started. Redirecting...")
+      response.status.must_equal 302
+    end
+
+    it "should only start one game" do
+      response = Faraday.post("http://127.0.0.1:9292/start_game")
+      response.body.must_include "Game's already started."
+      response.status.must_equal 403
+    end
+
 
   end
 

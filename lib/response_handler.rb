@@ -18,7 +18,7 @@ class ResponseHandler
       if request[:verb] == "POST" 
         unless server.game.instance_of?(Game)
           server.game= Game.new
-          write_response("Game started. Redirecting...", 301, ["location: http://127.0.0.1:9292/game"])
+          write_response("Game started. Redirecting...", 302, ["location: http://127.0.0.1:9292/game"])
         else
           write_response("Game's already started.", 403)
         end
