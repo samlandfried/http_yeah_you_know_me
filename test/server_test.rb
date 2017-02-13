@@ -35,6 +35,9 @@ class ServerTest < Minitest::Spec
 
     attr_reader :response
 
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
 
     it "should serve the request info" do
       # binding.pry
@@ -43,29 +46,75 @@ class ServerTest < Minitest::Spec
   end
 
   describe "When a request is made to /hello" do
+
+    attr_reader :response
+
     before do
       @response = Faraday.get("http://127.0.0.1:9292/hello")
     end
 
-    it "should "
+    it "should say hello" do
+      response.body.must_include "Hello, World"
+    end
+
+    it "should count requests" do
+      response.body.wont_equal Faraday.get("http://127.0.0.1:9292").body
+    end
   end
 
   describe "When a request is made to /datetime" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
   describe "When a request is made to /start_game" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
+
   describe "When a request is made to /game" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
   describe "When a request is made to /force_error" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
   describe "When a request is made to root" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
   describe "When a request is made to root" do
+    attr_reader :response
+
+    before do
+      @response = Faraday.get("http://127.0.0.1:9292")
+    end
+
   end
 
 end
