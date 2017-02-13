@@ -63,10 +63,32 @@ class ServerTest < Minitest::Spec
   end
 
   describe "When a request is made to /datetime" do
-    attr_reader :response
+    
+    attr_reader :response, :time, :day, :date, :year
 
+  # "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     before do
-      @response = Faraday.get("http://127.0.0.1:9292")
+      @response = Faraday.get("http://127.0.0.1:9292/datetime")
+      @time = Time.now.strftime('%I:%M%p') 
+      @day = Time.now.strftime('%A') 
+      @date = Time.now.strftime('%B %d') 
+      @year = Time.now.strftime('%Y') 
+    end
+
+    it "should include time" do
+      response.body.must_include(time)
+    end
+
+    it "should include day" do
+      response.body.must_include(day)
+    end
+
+    it "should include date" do
+      response.body.must_include(date)
+    end
+
+    it "should include year" do
+      response.body.must_include(year)
     end
 
   end
