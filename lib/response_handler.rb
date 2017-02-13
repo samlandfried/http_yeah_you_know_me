@@ -11,20 +11,29 @@ class ResponseHandler
   def serve_path server
     case request[:path]
     when "/"
-      write_request_info
-    when "/game"
+      write_response(write_request_info)
+    when "/game" 
       handle_game(server)
     when "/start_game"
-      server.game= Game.new
+      if request[:verb] == "POST" 
+        unless server.game.instance_of?(Game)
+          server.game= Game.new
+          write_response("Game started. Redirecting...", 301, ["location: http://127.0.0.1:9292/game"])
+        else
+          write_response("Game's already started.", 403)
+        end
+      else
+        write_response("Try with a POST, please.")
+      end
     when "/hello"
-      "Hello, World! (#{server.counts[:hello]})"
+      write_response("Hello, World! (#{server.counts[:hello] += 1})")
     when "/datetime"
-      "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
+      write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
     when "/word_search"
       word = request[:params][:word]
-      is_it_in_dictionary?(word)
+      write_response(is_it_in_dictionary?(word))
     when "/shutdown"
-      "Total Requests: #{server.counts[:total]}"
+      write_response("Total Requests: #{server.counts[:total]}")
     end
   end
 
@@ -60,9 +69,9 @@ class ResponseHandler
       write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"])
       "redirect"
     elsif request[:verb] == "GET"
-      server.game.get_info
+      write_response(server.game.get_info)
     else
-      "I only take POST and GET"
+      write_response("I only take POST and GET")
     end
   end
 end

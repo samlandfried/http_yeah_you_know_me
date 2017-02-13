@@ -31,13 +31,12 @@ class Server
       end
 
       counts[:total] += 1
-      counts[:hello] += 1 if request[:path] == "/hello"
 
       response_handler = ResponseHandler.new(request)
       response = response_handler.serve_path(self)
 
       puts "Writing response..."
-      response_handler.write_response(response) unless response == "redirect"
+      # every path must ultimately write a response
 
       socket.puts response_handler.headers
       socket.puts response_handler.output
