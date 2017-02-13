@@ -10,12 +10,13 @@ class Server
   attr_accessor :game
 
   def initialize port
-    @server = TCPServer.new port
+    @server = port
     @counts = {:hello => 0, :total => 0}
     @game = "Fidgey widgets"
   end
 
   def listen
+    @server = TCPServer.new(server)
     loop do
       begin
         puts "Listening for request..."
@@ -55,5 +56,3 @@ class Server
     end
   end
 end
-
-Server.new(9292).listen
