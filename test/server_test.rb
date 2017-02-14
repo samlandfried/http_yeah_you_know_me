@@ -109,8 +109,6 @@ class ServerTest < Minitest::Spec
       response.body.must_include "Game's already started."
       response.status.must_equal 403
     end
-
-
   end
 
 
@@ -145,7 +143,15 @@ class ServerTest < Minitest::Spec
     attr_reader :response
 
     before do
-      @response = Faraday.get("http://127.0.0.1:9292")
+      # @response = Faraday.get("http://127.0.0.1:9292/force_error")
+    end
+
+    it "should raise an error" do
+      # binding.pry
+      ""
+    end
+
+    it "should not kill the server" do
     end
 
   end

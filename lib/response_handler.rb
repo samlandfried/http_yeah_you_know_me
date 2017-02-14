@@ -26,6 +26,7 @@ class ResponseHandler
         write_response("Try with a POST, please.")
       end
     when "/hello"
+      sleep 6
       write_response("Hello, World! (#{server.counts[:hello] += 1})")
     when "/datetime"
       write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
@@ -36,6 +37,9 @@ class ResponseHandler
       write_response("Total Requests: #{server.counts[:total]}")
     when "/force_error"
       raise(StandardError, "Nice one!", caller)
+    when "/sleepy"
+      sleep 3
+      write_response("Sleepy!")
     else
       write_response("Nope.", 404)
     end
@@ -60,6 +64,7 @@ class ResponseHandler
     @headers = headers.join("\r\n")
   end
 
+  #THIS WILL SAY ANY 'WORD' THAT IS PART OF ANOTHER WORD IS A WORD. LIKE "CARPEN"
   def is_it_in_dictionary? word
     dic = File.open("/usr/share/dict/words", "r").read
     response = word + " is a word!"
@@ -70,7 +75,7 @@ class ResponseHandler
   def handle_game(server)
     if request[:verb] == "POST"
       server.game.guess(request[:params][:guess])
-      write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"])
+      write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"]) 
       "redirect"
     elsif request[:verb] == "GET"
       write_response(server.game.get_info)
