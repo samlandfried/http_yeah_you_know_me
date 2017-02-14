@@ -115,9 +115,11 @@ class ServerTest < Minitest::Spec
 
 
   describe "When a request is made to /game" do
+
     attr_reader :response
 
     before do
+      Faraday.post("http://127.0.0.1:9292/start_game")
       @response = Faraday.post("http://127.0.0.1:9292/game", {:guess => 7})
     end
 
@@ -127,7 +129,10 @@ class ServerTest < Minitest::Spec
     end
 
     it "should count guesses" do
-      response.body.wont_equal Faraday.post("http://127.0.0.1:9292/game", {:guess => 7}).body
+      response = Faraday.get("http://127.0.0.1:9292/game")
+      Faraday.post("http://127.0.0.1:9292/game", {:guess => 7})
+      response2 = Faraday.get("http://127.0.0.1:9292/game")
+      response.body.wont_equal response2.body
     end
 
     it "should redirect with a POST" do
@@ -136,7 +141,7 @@ class ServerTest < Minitest::Spec
   end
 
   describe "When a request is made to /force_error" do
-    
+
     attr_reader :response
 
     before do
