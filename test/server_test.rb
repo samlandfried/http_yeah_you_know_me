@@ -118,12 +118,25 @@ class ServerTest < Minitest::Spec
     attr_reader :response
 
     before do
-      @response = Faraday.get("http://127.0.0.1:9292")
+      @response = Faraday.post("http://127.0.0.1:9292/game", {:guess => 7})
     end
 
+    it "should display info for GET" do
+      response = Faraday.get("http://127.0.0.1:9292/game")
+      response.body.must_include("The last guess was 7")
+    end
+
+    it "should count guesses" do
+      response.body.wont_equal Faraday.post("http://127.0.0.1:9292/game", {:guess => 7}).body
+    end
+
+    it "should redirect with a POST" do
+      response.status.must_equal 302
+    end
   end
 
   describe "When a request is made to /force_error" do
+    
     attr_reader :response
 
     before do
