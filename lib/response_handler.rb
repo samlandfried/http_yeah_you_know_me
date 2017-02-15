@@ -12,10 +12,10 @@ class ResponseHandler
     case request[:path]
     when "/"
       write_response(write_request_info)
-    when "/game" 
+    when "/game"
       handle_game(server)
     when "/start_game"
-      if request[:verb] == "POST" 
+      if request[:verb] == "POST"
         unless server.game.instance_of?(Game)
           server.game= Game.new
           write_response("Game started. Redirecting...", 302, ["location: http://127.0.0.1:9292/game"])
@@ -26,7 +26,6 @@ class ResponseHandler
         write_response("Try with a POST, please.")
       end
     when "/hello"
-      sleep 6
       write_response("Hello, World! (#{server.counts[:hello] += 1})")
     when "/datetime"
       write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
@@ -36,10 +35,11 @@ class ResponseHandler
     when "/shutdown"
       write_response("Total Requests: #{server.counts[:total]}")
     when "/force_error"
-      raise(StandardError, "Nice one!", caller)
-    when "/sleepy"
-      sleep 3
-      write_response("Sleepy!")
+      begin
+        raise(StandardError, "Nice one!", caller)
+      rescue StandardError => bang
+        write_response(bang.backtrace.join("<br>"), 500)
+      end
     else
       write_response("Nope.", 404)
     end
@@ -75,7 +75,7 @@ class ResponseHandler
   def handle_game(server)
     if request[:verb] == "POST"
       server.game.guess(request[:params][:guess])
-      write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"]) 
+      write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"])
       "redirect"
     elsif request[:verb] == "GET"
       write_response(server.game.get_info)

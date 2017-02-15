@@ -19,45 +19,36 @@ class Server
     threads = []
     @server = TCPServer.new(server)
     loop do
-      begin
-        puts "Listening for request..."
-        
-        threads << Thread.new do
-          @socket = server.accept
-          request_handler = RequestHandler.new
-          request_handler.receive_request(socket)
-          puts "Got this request:\n#{request_handler.original_request.join("\n")}"
-          request = request_handler.build_request_hash
 
-          if request[:verb] == "POST"
-            request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i))
-            request.merge!(request_handler.params_hash(request_handler.request_hash[:body]))
-          end
-          counts[:total] += 1
+      puts "Listening for request..."
+      @socket = server.accept
+      request_handler = RequestHandler.new
+      request_handler.receive_request(socket)
+      puts "Got this request:\n#{request_handler.original_request.join("\n")}"
+      request = request_handler.build_request_hash
 
-          response_handler = ResponseHandler.new(request)
-          response = response_handler.serve_path(self)
-
-          puts "Writing response..."
-          # every path must ultimately write a response
-
-          socket.puts response_handler.headers
-          socket.puts response_handler.output
-          puts "Wrote this response:\n#{response_handler.output}"
-          puts "With these headers:\n#{response_handler.headers}"
-
-          puts "\nAnd for debugging purposes...\n#{response_handler.write_request_info}"
-
-          socket.close
-          break if request[:path] == "/shutdown"
-        end
-      rescue StandardError => bang
-        response_handler.write_response(bang.backtrace.join("<br>"), 500)
-        socket.puts response_handler.headers
-        socket.puts response_handler.output
-        raise
+      if request[:verb] == "POST"
+        request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i))
+        request.merge!(request_handler.params_hash(request_handler.request_hash[:body]))
       end
-      threads.each do |thread| thread.join end
+      counts[:total] += 1
+
+      response_handler = ResponseHandler.new(request)
+      response = response_handler.serve_path(self)
+
+      puts "Writing response..."
+      # every path must ultimately write a response
+
+      socket.puts response_handler.headers
+      socket.puts response_handler.output
+      puts "Wrote this response:\n#{response_handler.output}"
+      puts "With these headers:\n#{response_handler.headers}"
+
+      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_request_info}"
+
+      socket.close
+      break if request[:path] == "/shutdown"
+
     end
   end
 end

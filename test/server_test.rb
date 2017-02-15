@@ -142,16 +142,12 @@ class ServerTest < Minitest::Spec
 
     attr_reader :response
 
-    before do
-      # @response = Faraday.get("http://127.0.0.1:9292/force_error")
-    end
+    # it "should raise an error" do #that I disabled to avoid constantly restarting the server
+    #   ->{Faraday.get("http://127.0.0.1:9292/force_error")}.must_raise StandardError #Faraday doesn't raise an error, the server does. I can only test the response.
+    # end
 
-    it "should raise an error" do
-      # binding.pry
-      ""
-    end
-
-    it "should not kill the server" do
+    it "should print the backtrace" do
+      Faraday.get("http://127.0.0.1:9292/force_error").body.must_include("/Users/samlandfried/turing/1module/projects/http/lib/server.rb")
     end
 
   end
@@ -163,15 +159,12 @@ class ServerTest < Minitest::Spec
       @response = Faraday.get("http://127.0.0.1:9292")
     end
 
-  end
-
-  describe "When a request is made to root" do
-    attr_reader :response
-
-    before do
-      @response = Faraday.get("http://127.0.0.1:9292")
+    it "should display the GET request" do
+      response.body.must_include("Verb: GET
+Path: /
+Params: {}
+Protocol: HTTP/1.1")
     end
-
   end
 
 end
