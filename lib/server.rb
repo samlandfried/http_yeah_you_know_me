@@ -5,7 +5,7 @@ class Server
 
   # attr's not working as I would expect... why?
 
-  attr_accessor :server, :socket, :counter, :output, :headers
+  attr_accessor :server, :socket, :output, :headers
 
   def initialize port
     @server = TCPServer.new port
@@ -15,18 +15,26 @@ class Server
   end
 
   def listen
+    thread_reqs = []
     loop do
       puts "Listening for request..."
       @socket = server.accept
-      @counter += 1 # <------- I can't access counter as an attr_accessor
-      request = receive_request
-      puts "Got this request:\n#{request}"
-      puts "Writing response..."
-      write_response
-      socket.puts headers # <-- But I can access headers and output here via attr_accessor, but not in .write_response
-      socket.puts output
-      puts "Wrote this response:\n#{output}"
-      puts "With these headers:\n#{headers}"
+      thread_reqs << Thread.new do
+        @counter += 1 # <------- I can't access counter as an attr_accessor
+        request = receive_request
+        puts "Got this request:\n#{request}"
+        request
+      end
+
+      thread_reqs.each do |thread|
+        # puts "=============\n===========\n#{thread.value}"
+        puts "Writing response..."
+        write_response @counter
+        socket.puts headers # <-- But I can access headers and output here via attr_accessor, but not in .write_response
+        socket.puts output
+        puts "Wrote this response:\n#{output}"
+        puts "With these headers:\n#{headers}"
+      end
       socket.close
     end
   end
@@ -40,7 +48,8 @@ class Server
     request_lines.join("\n")
   end
 
-  def write_response # attr_accessor
+  def write_response counter
+    # sleep 6
     response = "<pre>Hello, World! (#{counter})</pre>" # <---------- I can access counter via attr_accessor
     @output = "<html><head></head><body>#{response}</body></html>" # But not headers and output
     @headers = ["http/1.1 200 ok",
