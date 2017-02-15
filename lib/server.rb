@@ -7,7 +7,7 @@ require './lib/game'
 
 class Server
 
-  attr_reader :server, :socket, :counts
+  attr_reader :server, :socket, :counts, :dictionary
   attr_accessor :game, :shutdown
 
   def initialize port
@@ -15,6 +15,7 @@ class Server
     @shutdown = false
     @counts = {:hello => 0, :total => 0}
     @game = nil
+    @dictionary = File.open("/usr/share/dict/words", "r").read
   end
 
   def listen
@@ -33,8 +34,8 @@ class Server
       end
       counts[:total] += 1
 
-      response_handler = ResponseHandler.new(request)
-      response = response_handler.serve_path(self)
+      response_handler = ResponseHandler.new(request, self)
+      response_handler.serve_path
 
       puts "Writing response..."
       # every path must ultimately write a response
@@ -52,6 +53,6 @@ class Server
   end
 
   def start_game
-    @game = Game.new 
+    @game = Game.new
   end
 end

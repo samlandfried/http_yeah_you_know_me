@@ -1,13 +1,13 @@
-
 class ResponseHandler
 
-  attr_reader :request, :output, :headers
+  attr_reader :request, :output, :headers, :server
 
-  def initialize request
+  def initialize request, server
     @request = request
+    @server = server
   end
 
-  def serve_path server
+  def serve_path
     case request[:path]
     when "/" then write_response(write_request_info)
     when "/game" then handle_game(server.game)
@@ -56,15 +56,12 @@ class ResponseHandler
                "content-type: text/html; charset=iso-8859-1",
                "content-length: #{output.length}"]
     extra_headers.each {|header| headers << header}
-    headers << "\r\n" # You can't modify an ary ele via .last...
-    headers.join("\r\n")
+    headers << "\r\n"; headers.join("\r\n")
   end
 
   def is_it_in_dictionary? word
-    dic = File.open("/usr/share/dict/words", "r").read
-    response = word + " is a word!"
-    response.insert(word.length + 3, " NOT") unless dic.include?(word + "\n")
-    response
+    return word + " is a word!" if server.dictionary.include?(word + "\n")
+    return word + " is NOT a word!"
   end
 
   def handle_game(game)
@@ -88,7 +85,7 @@ class ResponseHandler
     end
   end
 
-  def kill server
+  def kill
     write_response("Total Requests: #{server.counts[:total]}")
     server.shut_down
   end
