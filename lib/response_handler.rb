@@ -15,7 +15,7 @@ class ResponseHandler
     when "/hello" then say_hello_for_the_nth_time(server.counts)
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
     when "/word_search" then write_response(is_it_in_dictionary?(params[:word]))
-    when "/shutdown" then kill(server)
+    when "/shutdown" then server.kill
     when "/force_error" then server.force_error
     else write_response("Nope.", 404)
     end
@@ -68,8 +68,5 @@ class ResponseHandler
     return write_response("I only take POST and GET")
   end
 
-  def kill
-    write_response("Total Requests: #{server.counts[:total]}")
-    server.shut_down
-  end
+
 end

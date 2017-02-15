@@ -1,5 +1,10 @@
 module ServerMethods
 
+  def kill
+    self.response_handler.write_response("Total Requests: #{self.counts[:total]}")
+    self.shutdown = true
+  end
+
   def force_error
     begin
       raise(StandardError, "Just kidding!", caller)

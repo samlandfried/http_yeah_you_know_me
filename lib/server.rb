@@ -30,7 +30,7 @@ class Server
 
   def listen
     @server = TCPServer.new(server)
-    loop do
+    until shutdown
       puts "Listening for request..."
       @socket = server.accept
       @request_handler = RequestHandler.new
