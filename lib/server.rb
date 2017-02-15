@@ -7,12 +7,13 @@ require './lib/response_handler'
 class Server
 
   attr_reader :server, :socket, :counts
-  attr_accessor :game
+  attr_accessor :game, :shutdown
 
   def initialize port
     @server = port
+    @shutdown = false
     @counts = {:hello => 0, :total => 0}
-    @game = "Fidgey widgets"
+    @game = nil
   end
 
   def listen
@@ -45,7 +46,7 @@ class Server
       puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_request_info}"
 
       socket.close
-      break if request[:path] == "/shutdown"
+      break if shutdown
     end
   end
 

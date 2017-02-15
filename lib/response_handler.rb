@@ -15,9 +15,8 @@ class ResponseHandler
     when "/start_game" then server.start_game if ready_to_start?(server.game, request[:verb])
     when "/hello" then say_hello_for_the_nth_time(server.counts)
     when "/datetime" then write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
-    when "/word_search" then word = request[:params][:word]
-      write_response(is_it_in_dictionary?(word))
-    when "/shutdown" then write_response("Total Requests: #{server.counts[:total]}")
+    when "/word_search" then write_response(is_it_in_dictionary?([:params][:word]))
+    when "/shutdown" then kill(server)
     when "/force_error" then begin
       raise(StandardError, "Nice one!", caller)
       rescue StandardError => bang
@@ -80,4 +79,10 @@ class ResponseHandler
       write_response("I only take POST and GET")
     end
   end
+
+  def kill server
+    write_response("Total Requests: #{server.counts[:total]}")
+    server.shut_down
+  end
 end
+
