@@ -13,7 +13,7 @@ class ResponseHandler
     when "/" then write_response(write_request_info)
     when "/game" then handle_game(server.game)
     when "/start_game" then server.start_game if ready_to_start?(server.game, request[:verb])
-    when "/hello" then write_response("Hello, World! (#{server.counts[:hello] += 1})")
+    when "/hello" then say_hello_for_the_nth_time(server.counts[:hello])
     when "/datetime" then write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
     when "/word_search" then word = request[:params][:word]
       write_response(is_it_in_dictionary?(word))
@@ -26,6 +26,11 @@ class ResponseHandler
     else
       write_response("Nope.", 404)
     end
+  end
+
+  def say_hello_for_the_nth_time n
+    n += 1
+    write_response("Hello, World! (#{n})")
   end
 
   def ready_to_start? game, verb
