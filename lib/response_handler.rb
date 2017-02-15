@@ -15,7 +15,7 @@ class ResponseHandler
     when "/start_game" then server.start_game if ready_to_start?(server.game, request[:verb])
     when "/hello" then say_hello_for_the_nth_time(server.counts)
     when "/datetime" then write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
-    when "/word_search" then write_response(is_it_in_dictionary?([:params][:word]))
+    when "/word_search" then write_response(is_it_in_dictionary?(request[:params][:word]))
     when "/shutdown" then kill(server)
     when "/force_error" then force_error
     else
@@ -29,7 +29,6 @@ class ResponseHandler
   end
 
   def ready_to_start? game, verb
-    # binding.pry
     return write_response("Try with a POST, please.") unless verb == "POST"
     return write_response("Game started. Redirecting...", 302, ["location: http://127.0.0.1:9292/game"]) unless game.instance_of?(Game)
     return write_response("Game's already started.", 403)
@@ -54,16 +53,14 @@ class ResponseHandler
     @headers = headers.join("\r\n")
   end
 
-  #THIS WILL SAY ANY 'WORD' THAT IS PART OF ANOTHER WORD IS A WORD. LIKE "CARPEN"
   def is_it_in_dictionary? word
     dic = File.open("/usr/share/dict/words", "r").read
     response = word + " is a word!"
-    response.insert(word.length + 3, " NOT") unless dic.include?(word)
+    response.insert(word.length + 3, " NOT") unless dic.include?(word + "\n")
     response
   end
 
   def handle_game(game)
-    # binding.pry
     return write_response("Try starting a game first.") unless game.instance_of?(Game)
     if request[:verb] == "POST"
       game.guess(request[:params][:guess])
