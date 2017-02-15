@@ -1,4 +1,3 @@
-require './lib/game'
 
 class ResponseHandler
 
@@ -14,12 +13,16 @@ class ResponseHandler
     when "/game" then handle_game(server.game)
     when "/start_game" then server.start_game if ready_to_start?(server.game, request[:verb])
     when "/hello" then say_hello_for_the_nth_time(server.counts)
-    when "/datetime" then write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
+    when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
     when "/word_search" then write_response(is_it_in_dictionary?(request[:params][:word]))
     when "/shutdown" then kill(server)
     when "/force_error" then force_error
     else write_response("Nope.", 404)
     end
+  end
+
+  def redirect path, msg
+    write_response(msg, 302, ["location: #{path}"])
   end
 
   def say_hello_for_the_nth_time counts
@@ -29,7 +32,7 @@ class ResponseHandler
 
   def ready_to_start? game, verb
     return write_response("Try with a POST, please.") unless verb == "POST"
-    return write_response("Game started. Redirecting...", 302, ["location: http://127.0.0.1:9292/game"]) unless game.instance_of?(Game)
+    return redirect("http://127.0.0.1:9292/game", "Started!") unless game.instance_of?(Game)
     return write_response("Game's already started.", 403)
   end
 
@@ -43,13 +46,18 @@ class ResponseHandler
 
   def write_response response, status = 200, extra_headers = []
     @output = "<html><head></head><body>#{response}</body></html>"
-    @headers = ["http/1.1 #{status}",
-                "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-                "server: ruby",
-                "content-type: text/html; charset=iso-8859-1",
-                "content-length: #{output.length}\r\n\r\n"]
-    extra_headers.each {|header| headers.insert(1, header)}
-    @headers = headers.join("\r\n")
+    @headers = write_headers(status, extra_headers)
+  end
+
+  def write_headers status, extra_headers
+    headers = ["http/1.1 #{status}",
+               "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+               "server: ruby",
+               "content-type: text/html; charset=iso-8859-1",
+               "content-length: #{output.length}"]
+    extra_headers.each {|header| headers << header}
+    headers << "\r\n" # You can't modify an ary ele via .last...
+    headers.join("\r\n")
   end
 
   def is_it_in_dictionary? word

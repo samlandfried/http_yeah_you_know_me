@@ -3,6 +3,7 @@ require 'pry'
 
 require './lib/request_handler'
 require './lib/response_handler'
+require './lib/game'
 
 class Server
 
