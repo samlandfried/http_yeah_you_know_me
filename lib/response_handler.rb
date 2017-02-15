@@ -16,13 +16,9 @@ class ResponseHandler
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
     when "/word_search" then write_response(is_it_in_dictionary?(params[:word]))
     when "/shutdown" then kill(server)
-    when "/force_error" then force_error
+    when "/force_error" then server.force_error
     else write_response("Nope.", 404)
     end
-  end
-
-  def redirect path, msg
-    write_response(msg, 302, ["location: #{path}"])
   end
 
   def say_hello_for_the_nth_time counts
@@ -32,7 +28,7 @@ class ResponseHandler
 
   def ready_to_start? game, verb
     return write_response("Try with a POST, please.") unless verb == "POST"
-    return redirect("http://127.0.0.1:9292/game", "Started!") unless game.instance_of?(Game)
+    return server.redirect("http://127.0.0.1:9292/game", "Started!") unless game.instance_of?(Game)
     return write_response("Game's already started.", 403)
   end
 
@@ -67,17 +63,9 @@ class ResponseHandler
   def handle_game(game, guess, verb)
     return write_response("Try starting a game first.") unless game.instance_of?(Game)
     game.guess(guess) if verb == "POST"
-    return redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
+    return server.redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
     return write_response(game.get_info) if verb == "GET"
     return write_response("I only take POST and GET")
-  end
-
-  def force_error
-    begin
-      raise(StandardError, "Just kidding!", caller)
-    rescue StandardError => err_deets
-      write_response(err_deets.backtrace.join("<br>"), 500)
-    end
   end
 
   def kill

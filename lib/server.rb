@@ -4,11 +4,21 @@ require 'pry'
 require './lib/request_handler'
 require './lib/response_handler'
 require './lib/game'
+require './lib/server_methods'
 
 class Server
 
-  attr_reader :server, :socket, :counts, :dictionary
-  attr_accessor :game, :shutdown
+  include ServerMethods
+
+  attr_reader :server,
+              :socket,
+              :counts,
+              :dictionary,
+              :request_handler,
+              :response_handler
+
+  attr_accessor :game,
+                :shutdown
 
   def initialize port
     @server = port
@@ -23,7 +33,7 @@ class Server
     loop do
       puts "Listening for request..."
       @socket = server.accept
-      request_handler = RequestHandler.new
+      @request_handler = RequestHandler.new
       request_handler.receive_request(socket)
       puts "Got this request:\n#{request_handler.original_request.join("\n")}"
       request = request_handler.build_request_hash
@@ -34,7 +44,7 @@ class Server
       end
       counts[:total] += 1
 
-      response_handler = ResponseHandler.new(self)
+      @response_handler = ResponseHandler.new(self)
       response_handler.serve_path(request)
 
       puts "Writing response..."
