@@ -45,7 +45,7 @@ class Server
       puts "Wrote this response:\n#{response_handler.output}"
       puts "With these headers:\n#{response_handler.headers}"
 
-      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_request_info(request)}"
+      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_info(request)}"
 
       socket.close
       break if shutdown

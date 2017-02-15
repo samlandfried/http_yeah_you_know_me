@@ -1,6 +1,6 @@
 class ResponseHandler
 
-  attr_reader :output, :headers, :server
+  attr_reader :server, :output, :headers
 
   def initialize server
     @server = server
@@ -9,7 +9,7 @@ class ResponseHandler
   def serve_path request
     verb = request[:verb]; params = request[:params]
     case request[:path]
-    when "/" then write_response(write_request_info(request))
+    when "/" then write_response(write_info(request))
     when "/game" then handle_game(server.game, params[:guess], verb)
     when "/start_game" then server.start_game if ready_to_start?(server.game, verb)
     when "/hello" then say_hello_for_the_nth_time(server.counts)
@@ -36,7 +36,7 @@ class ResponseHandler
     return write_response("Game's already started.", 403)
   end
 
-  def write_request_info request
+  def write_info request
     to_print = "<pre>\n"
     request.each do |key, value|
       to_print += key.to_s.capitalize + ": " + value.to_s + "\n"
@@ -66,22 +66,17 @@ class ResponseHandler
 
   def handle_game(game, guess, verb)
     return write_response("Try starting a game first.") unless game.instance_of?(Game)
-    if verb == "POST"
-      game.guess(guess)
-      write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"])
-      "redirect"
-    elsif verb == "GET"
-      write_response(game.get_info)
-    else
-      write_response("I only take POST and GET")
-    end
+    game.guess(guess) if verb == "POST"
+    return redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
+    return write_response(game.get_info) if verb == "GET"
+    return write_response("I only take POST and GET")
   end
 
   def force_error
     begin
       raise(StandardError, "Just kidding!", caller)
-    rescue StandardError => bang
-      write_response(bang.backtrace.join("<br>"), 500)
+    rescue StandardError => err_deets
+      write_response(err_deets.backtrace.join("<br>"), 500)
     end
   end
 
