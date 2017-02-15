@@ -18,8 +18,7 @@ class ResponseHandler
     when "/word_search" then write_response(is_it_in_dictionary?(request[:params][:word]))
     when "/shutdown" then kill(server)
     when "/force_error" then force_error
-    else
-      write_response("Nope.", 404)
+    else write_response("Nope.", 404)
     end
   end
 
