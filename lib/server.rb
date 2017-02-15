@@ -34,8 +34,8 @@ class Server
       end
       counts[:total] += 1
 
-      response_handler = ResponseHandler.new(request, self)
-      response_handler.serve_path
+      response_handler = ResponseHandler.new(self)
+      response_handler.serve_path(request)
 
       puts "Writing response..."
       # every path must ultimately write a response
@@ -45,7 +45,7 @@ class Server
       puts "Wrote this response:\n#{response_handler.output}"
       puts "With these headers:\n#{response_handler.headers}"
 
-      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_request_info}"
+      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_request_info(request)}"
 
       socket.close
       break if shutdown

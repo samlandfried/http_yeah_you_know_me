@@ -1,20 +1,20 @@
 class ResponseHandler
 
-  attr_reader :request, :output, :headers, :server
+  attr_reader :output, :headers, :server
 
-  def initialize request, server
-    @request = request
+  def initialize server
     @server = server
   end
 
-  def serve_path
+  def serve_path request
+    verb = request[:verb]; params = request[:params]
     case request[:path]
-    when "/" then write_response(write_request_info)
-    when "/game" then handle_game(server.game)
-    when "/start_game" then server.start_game if ready_to_start?(server.game, request[:verb])
+    when "/" then write_response(write_request_info(request))
+    when "/game" then handle_game(server.game, params[:guess], verb)
+    when "/start_game" then server.start_game if ready_to_start?(server.game, verb)
     when "/hello" then say_hello_for_the_nth_time(server.counts)
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
-    when "/word_search" then write_response(is_it_in_dictionary?(request[:params][:word]))
+    when "/word_search" then write_response(is_it_in_dictionary?(params[:word]))
     when "/shutdown" then kill(server)
     when "/force_error" then force_error
     else write_response("Nope.", 404)
@@ -36,7 +36,7 @@ class ResponseHandler
     return write_response("Game's already started.", 403)
   end
 
-  def write_request_info
+  def write_request_info request
     to_print = "<pre>\n"
     request.each do |key, value|
       to_print += key.to_s.capitalize + ": " + value.to_s + "\n"
@@ -64,13 +64,13 @@ class ResponseHandler
     return word + " is NOT a word!"
   end
 
-  def handle_game(game)
+  def handle_game(game, guess, verb)
     return write_response("Try starting a game first.") unless game.instance_of?(Game)
-    if request[:verb] == "POST"
-      game.guess(request[:params][:guess])
+    if verb == "POST"
+      game.guess(guess)
       write_response("Redirecting", 302, ["location: http://127.0.0.1:9292/game"])
       "redirect"
-    elsif request[:verb] == "GET"
+    elsif verb == "GET"
       write_response(game.get_info)
     else
       write_response("I only take POST and GET")
