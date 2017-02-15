@@ -16,10 +16,8 @@ class Server
   end
 
   def listen
-    threads = []
     @server = TCPServer.new(server)
     loop do
-
       puts "Listening for request..."
       @socket = server.accept
       request_handler = RequestHandler.new
@@ -48,7 +46,10 @@ class Server
 
       socket.close
       break if request[:path] == "/shutdown"
-
     end
+  end
+
+  def start_game
+    @game = Game.new 
   end
 end
