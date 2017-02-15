@@ -17,11 +17,7 @@ class ResponseHandler
     when "/datetime" then write_response("#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}")
     when "/word_search" then write_response(is_it_in_dictionary?([:params][:word]))
     when "/shutdown" then kill(server)
-    when "/force_error" then begin
-      raise(StandardError, "Nice one!", caller)
-      rescue StandardError => bang
-        write_response(bang.backtrace.join("<br>"), 500)
-      end
+    when "/force_error" then force_error
     else
       write_response("Nope.", 404)
     end
@@ -80,9 +76,16 @@ class ResponseHandler
     end
   end
 
+  def force_error
+    begin
+      raise(StandardError, "Just kidding!", caller)
+    rescue StandardError => bang
+      write_response(bang.backtrace.join("<br>"), 500)
+    end
+  end
+
   def kill server
     write_response("Total Requests: #{server.counts[:total]}")
     server.shut_down
   end
 end
-
