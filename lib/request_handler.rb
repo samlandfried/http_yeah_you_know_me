@@ -4,6 +4,7 @@ class RequestHandler
 
   def initialize
     @original_request = []
+    @request_hash = {}
   end
 
   def receive_request socket
@@ -19,18 +20,19 @@ class RequestHandler
   end
 
   def build_request_hash
-    @request_hash = {}
-    original_request.each do |line|
-      if line.length == 1
-        request_hash.merge!(first_line_hash(line))
-      elsif line[0] == "Host"
-        request_hash[:host] = line[1].strip
-        request_hash[:port] = line[2]
-      else
-        request_hash[line[0].strip.to_sym] = line[1].strip # Note that some terms that include - don't convert to symbols nicely
-      end
+    original_request.each_with_index do |line, line_number|
+      request_hash.merge!(first_line_hash(line)) if line_number == 0
+      request_hash.merge!(host_line(line)) if line[0] == "Host"
+      request_hash[line[0].strip.to_sym] = line[1].strip unless line_number == 0
     end
     request_hash
+  end
+
+  def host_line line
+    new_hash = {}
+    new_hash[:host] = line[1].strip
+    new_hash[:port] = line[2]
+    new_hash
   end
 
   def first_line_hash line

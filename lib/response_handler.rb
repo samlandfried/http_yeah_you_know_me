@@ -37,7 +37,7 @@ class ResponseHandler
   end
 
   def write_headers status, extra_headers
-    headers = populate_headers
+    headers = populate_headers(status)
     extra_headers.each {|header| headers << header}
     headers << "\r\n"; headers.join("\r\n")
   end
@@ -49,5 +49,4 @@ class ResponseHandler
      "content-type: text/html; charset=iso-8859-1",
      "content-length: #{output.length}"]
   end
-
 end
