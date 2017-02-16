@@ -10,8 +10,9 @@ class ResponseHandler
     verb = request[:verb]; params = request[:params]; game = server.game
     case request[:path]
     when "/" then write_response(write_info(request))
-    when "/game" then game ? game.handle_game(params[:guess], verb, server) :
-                             write_response("Start a game first.")
+    when "/game" then game ?
+        game.handle_game(params[:guess], verb, server) :
+        write_response("Start a game first.")
     when "/start_game" then server.start_game(verb)
     when "/hello" then server.say_hello_for_the_nth_time
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
@@ -36,15 +37,17 @@ class ResponseHandler
   end
 
   def write_headers status, extra_headers
-    headers = ["http/1.1 #{status}",
-               "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
-               "server: ruby",
-               "content-type: text/html; charset=iso-8859-1",
-               "content-length: #{output.length}"]
+    headers = populate_headers
     extra_headers.each {|header| headers << header}
     headers << "\r\n"; headers.join("\r\n")
   end
 
-
+  def populate_headers status
+    ["http/1.1 #{status}",
+     "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
+     "server: ruby",
+     "content-type: text/html; charset=iso-8859-1",
+     "content-length: #{output.length}"]
+  end
 
 end

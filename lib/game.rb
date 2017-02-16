@@ -35,14 +35,3 @@ class Game
     return server.response_handler.write_response("I only take POST and GET")
   end
 end
-
-
-# GET to /game
-
-# A request to this verb/path combo tells us:
-
-# a) how many guesses have been taken.
-# b) if a guess has been made, it tells what the guess was and whether it was too high, too low, or correct
-# POST to /game
-
-# This is how we make a guess. The request includes a parameter named guess. The server stores the guess and sends the user a redirect response, causing the client to make a GET to /game.
