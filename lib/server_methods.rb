@@ -1,3 +1,4 @@
+require 'json'
 module ServerMethods
 
   def kill
@@ -19,15 +20,22 @@ module ServerMethods
 
   def is_it_in_dictionary? word
     node = dictionary.find_node(word)
+    return json_response(node) if request_handler.request_hash[:Accept] == "application/json"
     return word + " is a word!" if node.word
     return suggestions(word) unless node.children.empty?
     return word + " is NOT a word!"
   end
 
+  def json_response node
+    return JSON.generate({:word => node.value, :is_word => node.word, :possible_matches => dictionary.suggest(node.value)})
+  end
+
   def suggestions word_frag
     suggestions = dictionary.suggest(word_frag)
-    %{#{word_frag} isn't a word, but perhaps you meant one of these:
-      <br>#{suggestions.join("<br>")}}
+    %{
+      #{word_frag} isn't a word, but perhaps you meant one of these: <br>
+      #{suggestions.join("<br>")}
+    }
   end
 
   def hear_request

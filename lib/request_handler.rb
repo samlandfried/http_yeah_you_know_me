@@ -8,8 +8,8 @@ class RequestHandler
   end
 
   def receive_request socket
+    puts "Reading request..."
     while line = socket.gets and !line.chomp.empty?
-      puts "Reading request..."
       original_request << line.chomp.split(":")
     end
     original_request
