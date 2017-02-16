@@ -7,11 +7,12 @@ class ResponseHandler
   end
 
   def serve_path request
-    verb = request[:verb]; params = request[:params]
+    verb = request[:verb]; params = request[:params]; game = server.game
     case request[:path]
     when "/" then write_response(write_info(request))
-    when "/game" then handle_game(server.game, params[:guess], verb)
-    when "/start_game" then server.start_game if ready_to_start?(server.game, verb)
+    when "/game" then game ? game.handle_game(params[:guess], verb, server) :
+                             write_response("Start a game first.")
+    when "/start_game" then server.start_game(verb)
     when "/hello" then say_hello_for_the_nth_time(server.counts)
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
     when "/word_search" then write_response(is_it_in_dictionary?(params[:word]))
@@ -24,12 +25,6 @@ class ResponseHandler
   def say_hello_for_the_nth_time counts
     counts[:hello] += 1
     write_response("Hello, World! (#{counts[:hello]})")
-  end
-
-  def ready_to_start? game, verb
-    return write_response("Try with a POST, please.") unless verb == "POST"
-    return server.redirect("http://127.0.0.1:9292/game", "Started!") unless game.instance_of?(Game)
-    return write_response("Game's already started.", 403)
   end
 
   def write_info request
@@ -58,14 +53,6 @@ class ResponseHandler
   def is_it_in_dictionary? word
     return word + " is a word!" if server.dictionary.include?(word + "\n")
     return word + " is NOT a word!"
-  end
-
-  def handle_game(game, guess, verb)
-    return write_response("Try starting a game first.") unless game.instance_of?(Game)
-    game.guess(guess) if verb == "POST"
-    return server.redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
-    return write_response(game.get_info) if verb == "GET"
-    return write_response("I only take POST and GET")
   end
 
 

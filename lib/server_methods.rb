@@ -17,4 +17,10 @@ module ServerMethods
     self.response_handler.write_response(msg, 302, ["location: #{path}"])
   end
 
+  def start_game verb
+    return self.response_handler.write_response("Try with a POST, please.") unless verb == "POST"
+    return self.response_handler.write_response("Game's already started.", 403) if self.game.instance_of?(Game)
+    self.game = Game.new
+    redirect("http://127.0.0.1:9292/game", "Started!")
+  end
 end

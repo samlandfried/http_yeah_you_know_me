@@ -11,14 +11,14 @@ class Server
   include ServerMethods
 
   attr_reader :server,
-              :socket,
-              :counts,
-              :dictionary,
-              :request_handler,
-              :response_handler
+    :socket,
+    :counts,
+    :dictionary,
+    :request_handler,
+    :response_handler
 
   attr_accessor :game,
-                :shutdown
+    :shutdown
 
   def initialize port
     @server = port
@@ -60,9 +60,5 @@ class Server
       socket.close
       break if shutdown
     end
-  end
-
-  def start_game
-    @game = Game.new
   end
 end

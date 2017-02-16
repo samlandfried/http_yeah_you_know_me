@@ -11,10 +11,9 @@ class Game
     unless guesses.empty?
       num_of_guesses = guesses.size
       last_guess = guesses.last.to_i
-      response = %{<br>
-                   So far #{num_of_guesses == 1 ?
-                   "1 guess has" :
-                   "#{num_of_guesses} guesses have"} been made. <br>
+      response = %{<br>So far #{num_of_guesses == 1 ?
+                   "1 guess has" : "#{num_of_guesses} guesses have"}
+      been made. <br>
       The last guess was #{last_guess} and it was }
       return response + "too high.<br>" if last_guess > answer
       return response + "too low.<br>" if last_guess < answer
@@ -28,6 +27,12 @@ class Game
     guesses << num
   end
 
+  def handle_game guess, verb, server
+    guess(guess) if verb == "POST"
+    return server.redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
+    return server.response_handler.write_response(get_info) if verb == "GET"
+    return server.response_handler.write_response("I only take POST and GET")
+  end
 end
 
 
