@@ -1,5 +1,4 @@
 require 'socket'
-require 'pry'
 
 require './lib/request_handler'
 require './lib/response_handler'
@@ -33,7 +32,6 @@ class Server
     until shutdown
       puts "Listening for request..."
       @socket = server.accept
-      counts[:total] += 1
 
       hear_request
       request = build_request

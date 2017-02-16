@@ -1,7 +1,6 @@
 require 'minitest/autorun'
 require 'minitest/emoji'
 require 'faraday'
-require 'pry'
 
 require './lib/server'
 
@@ -38,7 +37,6 @@ class ServerTest < Minitest::Spec
     end
 
     it "should serve the request info" do
-      # binding.pry
       response.body.must_include("Verb: GET\nPath: /\nParams: {}\nProtocol: HTTP/1.1\nUser-agent: Faraday v0.11.0\nAccept-encoding: gzip;q=1.0,deflate;q=0.6,identity;q=0.3\nAccept: */*\nConnection: close\nHost: 127.0.0.1\nPort: 9292")
     end
   end
@@ -64,7 +62,6 @@ class ServerTest < Minitest::Spec
 
     attr_reader :response, :time, :day, :date, :year
 
-    # "#{Time.now.strftime('%I:%M%p on %A, %B %d, %Y')}"
     before do
       @response = Faraday.get("http://127.0.0.1:9292/datetime")
       @time = Time.now.strftime('%I:%M%p')
@@ -91,7 +88,7 @@ class ServerTest < Minitest::Spec
 
   end
 
-  describe "When a request is made to /start_game" do # How do I get these to pass when the order of them is important? I need to kill and restart server. Might need to use Threads
+  describe "When a request is made to /start_game" do
 
     it "should not allow GETs" do
       response = Faraday.get("http://127.0.0.1:9292/start_game")
@@ -141,10 +138,6 @@ class ServerTest < Minitest::Spec
   describe "When a request is made to /force_error" do
 
     attr_reader :response
-
-    # it "should raise an error" do #that I disabled to avoid constantly restarting the server
-    #   ->{Faraday.get("http://127.0.0.1:9292/force_error")}.must_raise StandardError #Faraday doesn't raise an error, the server does. I can only test the response.
-    # end
 
     it "should print the backtrace" do
       Faraday.get("http://127.0.0.1:9292/force_error").body.must_include("/Users/samlandfried/turing/1module/projects/http/lib/server.rb")

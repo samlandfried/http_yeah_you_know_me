@@ -40,19 +40,18 @@ class RequestHandler
   end
 
   def process_path path
-    path = path.split("?") if path
-    request_hash[:path] = path[0]
-    request_hash[:params] = get_params(path[1])
+    path = path.split("?")
+    request_hash[:path] = path.shift
+    get_params(path)
   end
 
   def get_params params
-    return request_hash[:params] = {} unless params.kind_of?(String)
+    return request_hash[:params] = {} unless params.kind_of?(Array)
 
     request_hash[:params] = {}
-    params = params.split("?")
     params.each do |param|
       key_val_tuple = param.split("=")
-      request_hash[:params][key_val_tuple[0].to_sym] = key_val_tuple[1]
+      request_hash[:params][key_val_tuple[0].to_sym] = key_val_tuple[1] unless key_val_tuple.empty?
     end
   end
 end

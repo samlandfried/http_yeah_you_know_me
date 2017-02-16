@@ -23,6 +23,7 @@ module ServerMethods
   end
 
   def hear_request
+    counts[:total] += 1
     @request_handler = RequestHandler.new
     request_handler.receive_request(socket)
     puts "Got this request:\n#{request_handler.original_request.join("\n")}"
@@ -30,9 +31,10 @@ module ServerMethods
 
   def build_request
     request_handler.build_request_hash
-    request_body_length = request_handler.request_hash[:"Content-Length"].to_i
-    request_handler.read_body(socket, request_body_length)
-    request_handler.get_params(request_handler.request_hash[:body])
+    if request_body_length = request_handler.request_hash[:"Content-Length"]
+      request_handler.read_body(socket, request_body_length.to_i)
+      request_handler.get_params([request_handler.request_hash[:body]])
+    end
     request_handler.request_hash
   end
 
