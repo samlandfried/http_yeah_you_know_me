@@ -18,8 +18,16 @@ module ServerMethods
   end
 
   def is_it_in_dictionary? word
-    return word + " is a word!" if dictionary.include?(word + "\n")
+    node = dictionary.find_node(word)
+    return word + " is a word!" if node.word
+    return suggestions(word) unless node.children.empty?
     return word + " is NOT a word!"
+  end
+
+  def suggestions word_frag
+    suggestions = dictionary.suggest(word_frag)
+    %{#{word_frag} isn't a word, but perhaps you meant one of these:
+      <br>#{suggestions.join("<br>")}}
   end
 
   def hear_request

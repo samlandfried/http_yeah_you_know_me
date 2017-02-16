@@ -4,6 +4,7 @@ require './lib/request_handler'
 require './lib/response_handler'
 require './lib/game'
 require './lib/server_methods'
+require './lib/complete_me'
 
 class Server
 
@@ -24,7 +25,8 @@ class Server
     @shutdown = false
     @counts = {:hello => 0, :total => 0}
     @game = nil
-    @dictionary = File.open("/usr/share/dict/words", "r").read
+    @dictionary = CompleteMe.new
+    dictionary.populate(File.open("/usr/share/dict/words", "r").read)
   end
 
   def spinup
