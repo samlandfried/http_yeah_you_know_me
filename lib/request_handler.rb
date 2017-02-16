@@ -16,49 +16,43 @@ class RequestHandler
   end
 
   def read_body socket, length
-    {:body => socket.read(length)}
+    request_hash[:body] = socket.read(length)
   end
 
   def build_request_hash
     original_request.each_with_index do |line, line_number|
-      request_hash.merge!(first_line_hash(line)) if line_number == 0
-      request_hash.merge!(host_line(line)) if line[0] == "Host"
-      request_hash[line[0].strip.to_sym] = line[1].strip unless line_number == 0
+      process_first_line(line[0]) if line_number == 0
+      process_host_line(line) if line[0] == "Host"
+      request_hash[line[0].strip.to_sym] = line[1].strip unless line_number == 0 || line[0] == "Host"
     end
-    request_hash
   end
 
-  def host_line line
-    new_hash = {}
-    new_hash[:host] = line[1].strip
-    new_hash[:port] = line[2]
-    new_hash
+  def process_host_line line
+    request_hash[:host] = line[1].strip
+    request_hash[:port] = line[2]
   end
 
-  def first_line_hash line
-    first_line_hash = {}
-    line = line[0].split(" ")
-    first_line_hash[:verb] = line[0]
-    first_line_hash.merge!(path_hash(line[1]))
-    first_line_hash[:protocol] = line[2]
-    first_line_hash
+  def process_first_line line
+    line = line.split(" ")
+    request_hash[:verb] = line[0]
+    process_path(line[1])
+    request_hash[:protocol] = line[2]
   end
 
-  def path_hash path
-    path_hash = {}
-    path = path.split("?")
-    path_hash[:path] = path.shift
-    path_hash.merge!(params_hash(path))
+  def process_path path
+    path = path.split("?") if path
+    request_hash[:path] = path[0]
+    request_hash[:params] = get_params(path[1])
   end
 
-  # Only parses params from x-www-form-urlencoded POSTs
-  def params_hash params
-    key_vals = {}
-    params = params.split("&") if params.kind_of?(String)
-    params.length.times do |i|
-      key_val_tuple = params[i].split("=")
-      key_vals[key_val_tuple[0].to_sym] = key_val_tuple[1]
+  def get_params params
+    return request_hash[:params] = {} unless params.kind_of?(String)
+
+    request_hash[:params] = {}
+    params = params.split("?")
+    params.each do |param|
+      key_val_tuple = param.split("=")
+      request_hash[:params][key_val_tuple[0].to_sym] = key_val_tuple[1]
     end
-    {:params => key_vals}
   end
 end

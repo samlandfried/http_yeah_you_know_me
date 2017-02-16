@@ -28,7 +28,7 @@ class Game
     guesses << num
   end
 
-  def handle_game guess, verb, server
+  def handle_game guess = "PICKLE", verb, server
     guess(guess) if verb == "POST"
     return server.redirect("http://127.0.0.1:9292/game", "Redirecting...") if verb == "POST"
     return server.response_handler.write_response(get_info) if verb == "GET"

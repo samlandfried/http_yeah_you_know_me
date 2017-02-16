@@ -10,9 +10,10 @@ class ResponseHandler
     verb = request[:verb]; params = request[:params]; game = server.game
     case request[:path]
     when "/" then write_response(write_info(request))
-    when "/game" then game ?
-        game.handle_game(params[:guess], verb, server) :
-        write_response("Start a game first.")
+    when "/game"
+      write_response("Start a game first.") unless game
+      game.handle_game(params[:guess], verb, server) if game && verb == "POST"
+      game.handle_game(nil, verb, server) if game && verb == "GET"
     when "/start_game" then server.start_game(verb)
     when "/hello" then server.say_hello_for_the_nth_time
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))

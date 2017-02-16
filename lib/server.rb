@@ -36,12 +36,16 @@ class Server
       @request_handler = RequestHandler.new
       request_handler.receive_request(socket)
       puts "Got this request:\n#{request_handler.original_request.join("\n")}"
-      request = request_handler.build_request_hash
+      request_handler.build_request_hash
+      request = request_handler.request_hash
 
-      if request[:verb] == "POST"
-        request.merge!(request_handler.read_body(socket, request[:"Content-Length"].to_i))
-        request.merge!(request_handler.params_hash(request_handler.request_hash[:body]))
+      if request_handler.request_hash[:verb] == "POST"
+        request_handler.read_body(socket, request[:"Content-Length"].to_i)
+        request = request_handler.request_hash
+        request_handler.get_params(request_handler.request_hash[:body])
+        request = request_handler.request_hash
       end
+
       counts[:total] += 1
 
       @response_handler = ResponseHandler.new(self)
