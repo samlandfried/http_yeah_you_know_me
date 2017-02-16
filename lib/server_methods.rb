@@ -17,6 +17,11 @@ module ServerMethods
     self.response_handler.write_response(msg, 302, ["location: #{path}"])
   end
 
+  def is_it_in_dictionary? word
+    return word + " is a word!" if self.dictionary.include?(word + "\n")
+    return word + " is NOT a word!"
+  end
+
   def start_game verb
     return self.response_handler.write_response("Try with a POST, please.") unless verb == "POST"
     return self.response_handler.write_response("Game's already started.", 403) if self.game.instance_of?(Game)
