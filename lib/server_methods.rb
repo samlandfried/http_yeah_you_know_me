@@ -28,4 +28,9 @@ module ServerMethods
     self.game = Game.new
     redirect("http://127.0.0.1:9292/game", "Started!")
   end
+
+  def say_hello_for_the_nth_time
+    self.counts[:hello] += 1
+    self.response_handler.write_response("Hello, World! (#{counts[:hello]})")
+  end
 end

@@ -13,18 +13,13 @@ class ResponseHandler
     when "/game" then game ? game.handle_game(params[:guess], verb, server) :
                              write_response("Start a game first.")
     when "/start_game" then server.start_game(verb)
-    when "/hello" then say_hello_for_the_nth_time(server.counts)
+    when "/hello" then server.say_hello_for_the_nth_time
     when "/datetime" then write_response(Time.now.strftime('%I:%M%p on %A, %B %d, %Y'))
-    when "/word_search" then write_response(is_it_in_dictionary?(params[:word]))
+    when "/word_search" then write_response(server.is_it_in_dictionary?(params[:word]))
     when "/shutdown" then server.kill
     when "/force_error" then server.force_error
     else write_response("Nope.", 404)
     end
-  end
-
-  def say_hello_for_the_nth_time counts
-    counts[:hello] += 1
-    write_response("Hello, World! (#{counts[:hello]})")
   end
 
   def write_info request
@@ -49,11 +44,5 @@ class ResponseHandler
     extra_headers.each {|header| headers << header}
     headers << "\r\n"; headers.join("\r\n")
   end
-
-  def is_it_in_dictionary? word
-    return word + " is a word!" if server.dictionary.include?(word + "\n")
-    return word + " is NOT a word!"
-  end
-
 
 end
