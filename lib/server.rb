@@ -28,41 +28,20 @@ class Server
     @dictionary = File.open("/usr/share/dict/words", "r").read
   end
 
-  def listen
+  def spinup
     @server = TCPServer.new(server)
     until shutdown
       puts "Listening for request..."
       @socket = server.accept
-      @request_handler = RequestHandler.new
-      request_handler.receive_request(socket)
-      puts "Got this request:\n#{request_handler.original_request.join("\n")}"
-      request_handler.build_request_hash
-      request = request_handler.request_hash
-
-      if request_handler.request_hash[:verb] == "POST"
-        request_handler.read_body(socket, request[:"Content-Length"].to_i)
-        request = request_handler.request_hash
-        request_handler.get_params(request_handler.request_hash[:body])
-        request = request_handler.request_hash
-      end
-
       counts[:total] += 1
 
-      @response_handler = ResponseHandler.new(self)
-      response_handler.serve_path(request)
+      hear_request
+      request = build_request
 
-      puts "Writing response..."
-      # every path must ultimately write a response
-
-      socket.puts response_handler.headers
-      socket.puts response_handler.output
-      puts "Wrote this response:\n#{response_handler.output}"
-      puts "With these headers:\n#{response_handler.headers}"
-
-      puts "\n\nAnd for debugging purposes...\n\n#{response_handler.write_info(request)}"
+      build_response(request)
+      respond
 
       socket.close
-      break if shutdown
     end
   end
 end
